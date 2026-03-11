@@ -1,0 +1,23 @@
+namespace: dp-scaffold-system
+namePrefix: dp-scaffold-
+
+resources:
+- ../crd
+- ../manager
+- ../default/metrics_service.yaml
+# RBAC — namespace-scoped (Role instead of ClusterRole)
+- role.yaml
+- role_binding.yaml
+- ../rbac/service_account.yaml
+- ../rbac/leader_election_role.yaml
+- ../rbac/leader_election_role_binding.yaml
+# Metrics auth — MUST stay cluster-scoped (tokenreviews, subjectaccessreviews)
+- ../rbac/metrics_auth_role.yaml
+- ../rbac/metrics_auth_role_binding.yaml
+- ../rbac/metrics_reader_role.yaml
+
+patches:
+# Adds --watch-namespaces=$(POD_NAMESPACE) + --metrics-bind-address=:8443
+- path: manager_watch_patch.yaml
+  target:
+    kind: Deployment

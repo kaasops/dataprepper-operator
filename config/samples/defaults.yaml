@@ -1,0 +1,24 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperDefaults
+metadata:
+  name: default
+  namespace: observability
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  sink:
+    opensearch:
+      hosts: ["https://opensearch:9200"]
+      credentialsSecretRef:
+        name: opensearch-credentials
+  kafka:
+    bootstrapServers: ["kafka-0.kafka:9092"]
+    credentialsSecretRef:
+      name: kafka-credentials
+  resources:
+    perReplica:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+  serviceMonitor:
+    enabled: true
+    interval: "30s"

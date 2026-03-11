@@ -1,0 +1,26 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-dataprepper-kaasops-io-v1alpha1-dataprepperpipeline
+  failurePolicy: Fail
+  name: vdataprepperpipeline.kb.io
+  rules:
+  - apiGroups:
+    - dataprepper.kaasops.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dataprepperpipelines
+  sideEffects: None

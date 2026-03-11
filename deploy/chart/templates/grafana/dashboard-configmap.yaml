@@ -1,0 +1,12 @@
+{{- if .Values.grafana.dashboard.enable }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "dataprepper-operator.resourceName" (dict "suffix" "grafana-dashboard" "context" .) }}
+  namespace: {{ include "dataprepper-operator.namespaceName" . }}
+  labels:
+    {{- toYaml .Values.grafana.dashboard.sidecarLabel | nindent 4 }}
+data:
+  dataprepper-operator.json: |-
+    {{- .Files.Get "dashboards/dataprepper-operator.json" | nindent 4 }}
+{{- end }}

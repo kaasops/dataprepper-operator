@@ -1,0 +1,25 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperSourceDiscovery
+metadata:
+  name: e2e-discovery
+spec:
+  kafka:
+    bootstrapServers:
+      - "e2e-cluster-kafka-bootstrap.kafka.svc:9092"
+    topicSelector:
+      prefix: "e2e-discovery-"
+    pollInterval: "10s"
+    cleanupPolicy: Delete
+  pipelineTemplate:
+    spec:
+      image: opensearchproject/data-prepper:2.10.0
+      pipelines:
+        - name: "{{ .DiscoveredName }}-pipeline"
+          source:
+            kafka:
+              bootstrapServers:
+                - "e2e-cluster-kafka-bootstrap.kafka.svc:9092"
+              topic: "{{ .DiscoveredName }}"
+              groupId: "dp-{{ .DiscoveredName }}"
+          sink:
+            - stdout: {}

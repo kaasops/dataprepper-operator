@@ -1,0 +1,23 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: e2e-non-stateful
+  namespace: {{ .Namespace }}
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: kafka-to-stdout
+      source:
+        kafka:
+          bootstrapServers:
+            - "{{ .BootstrapServers }}"
+          topic: {{ .Topic }}
+          groupId: dp-e2e-non-stateful
+          encryptionType: none
+      processors:
+        - {"grok": {"match": {"message": ["%{COMMONAPACHELOG}"]}}}
+      sink:
+        - stdout: {}
+  scaling:
+    mode: manual
+    fixedReplicas: 3

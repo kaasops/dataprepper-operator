@@ -1,0 +1,20 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: e2e-dual-source
+  namespace: {{ .Namespace }}
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: dual-source-pipeline
+      source:
+        kafka:
+          bootstrapServers:
+            - "{{ .BootstrapServers }}"
+          topic: {{ .Topic }}
+          groupId: dp-e2e-dual-source
+          encryptionType: none
+        http:
+          port: 2021
+      sink:
+        - stdout: {}

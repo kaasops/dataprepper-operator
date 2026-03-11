@@ -1,0 +1,22 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: e2e-cyclic
+  namespace: {{ .Namespace }}
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: pipeline-a
+      source:
+        pipeline:
+          name: pipeline-b
+      sink:
+        - pipeline:
+            name: pipeline-b
+    - name: pipeline-b
+      source:
+        pipeline:
+          name: pipeline-a
+      sink:
+        - pipeline:
+            name: pipeline-a

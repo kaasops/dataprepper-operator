@@ -1,0 +1,19 @@
+apiVersion: v2
+name: dataprepper-operator
+description: Kubernetes operator for managing OpenSearch Data Prepper pipelines with auto-scaling and dynamic source discovery
+type: application
+
+version: 0.1.0
+appVersion: "0.1.0"
+
+keywords:
+  - kubernetes
+  - operator
+
+home: https://github.com/kaasops/dataprepper-operator
+sources:
+  - https://github.com/kaasops/dataprepper-operator
+maintainers:
+  - name: kaasops
+    url: https://github.com/kaasops
+

@@ -1,0 +1,35 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: logs-app1
+  namespace: observability
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: kafka-to-opensearch
+      workers: 4
+      source:
+        kafka:
+          bootstrapServers: ["kafka-0.kafka:9092"]
+          topic: logs-app1
+          groupId: dp-logs-app1
+          credentialsSecretRef:
+            name: kafka-credentials
+      processors:
+        - grok:
+            match:
+              message: ["%{COMMONAPACHELOG}"]
+      sink:
+        - opensearch:
+            hosts: ["https://opensearch:9200"]
+            index: "logs-app1-%{yyyy.MM.dd}"
+            credentialsSecretRef:
+              name: opensearch-credentials
+  scaling:
+    mode: manual
+    fixedReplicas: 3
+  resources:
+    perReplica:
+      requests:
+        cpu: 500m
+        memory: 512Mi

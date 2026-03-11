@@ -1,0 +1,53 @@
+{{- if .Values.webhook.enable }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dataprepper-operator.resourceName" (dict "suffix" "controller-manager-webhook-service" "context" $) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "dataprepper-operator.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 9443
+  selector:
+    app.kubernetes.io/name: {{ include "dataprepper-operator.name" . }}
+    control-plane: controller-manager
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: {{ include "dataprepper-operator.resourceName" (dict "suffix" "validating-webhook" "context" $) }}
+  labels:
+    app.kubernetes.io/name: {{ include "dataprepper-operator.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- if .Values.certManager.enable }}
+  annotations:
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "dataprepper-operator.resourceName" (dict "suffix" "webhook-cert" "context" $) }}
+  {{- end }}
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "dataprepper-operator.resourceName" (dict "suffix" "controller-manager-webhook-service" "context" $) }}
+      namespace: {{ .Release.Namespace }}
+      path: /validate-dataprepper-kaasops-io-v1alpha1-dataprepperpipeline
+  failurePolicy: Fail
+  name: vdataprepperpipeline.kb.io
+  rules:
+  - apiGroups:
+    - dataprepper.kaasops.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dataprepperpipelines
+  sideEffects: None
+{{- end }}

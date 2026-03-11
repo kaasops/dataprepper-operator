@@ -1,0 +1,22 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: e2e-kafka-scaling-small
+  namespace: {{ .Namespace }}
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: kafka-to-stdout
+      source:
+        kafka:
+          bootstrapServers:
+            - "{{ .BootstrapServers }}"
+          topic: {{ .Topic }}
+          groupId: dp-e2e-scaling-small
+          encryptionType: none
+      sink:
+        - stdout: {}
+  scaling:
+    mode: auto
+    maxReplicas: 10
+    minReplicas: 1

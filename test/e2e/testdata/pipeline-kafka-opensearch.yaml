@@ -1,0 +1,20 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: e2e-kafka-opensearch
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: kafka-to-opensearch
+      source:
+        kafka:
+          bootstrapServers:
+            - "e2e-cluster-kafka-bootstrap.kafka.svc:9092"
+          topic: e2e-dataflow
+          groupId: dp-e2e-dataflow
+          encryptionType: none
+      sink:
+        - opensearch:
+            hosts:
+              - "http://opensearch-cluster-master.opensearch.svc:9200"
+            index: e2e-test-index

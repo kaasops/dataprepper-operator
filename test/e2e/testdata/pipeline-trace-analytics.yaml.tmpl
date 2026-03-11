@@ -1,0 +1,39 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: e2e-trace-analytics
+  namespace: {{ .Namespace }}
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: entry
+      source:
+        otel:
+          port: 21890
+          protocols:
+            - traces
+      sink:
+        - pipeline:
+            name: raw-trace
+        - pipeline:
+            name: service-map
+    - name: raw-trace
+      source:
+        pipeline:
+          name: entry
+      processors:
+        - {"otel_traces": {}}
+      sink:
+        - stdout: {}
+    - name: service-map
+      source:
+        pipeline:
+          name: entry
+      processors:
+        - {"service_map": {"window_duration": "30s"}}
+      sink:
+        - stdout: {}
+  scaling:
+    mode: auto
+    maxReplicas: 4
+    minReplicas: 2

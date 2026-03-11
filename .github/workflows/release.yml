@@ -1,0 +1,149 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "pre-v*"
+
+permissions:
+  contents: write
+  packages: write
+  security-events: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  CHART_REGISTRY: ghcr.io/kaasops/charts
+
+jobs:
+  image:
+    name: Build and Push Image
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is_prerelease: ${{ steps.version.outputs.is_prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine version tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if [[ "${TAG}" =~ ^pre-v(.+)$ ]]; then
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "version=${BASH_REMATCH[1]}-pre" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ steps.version.outputs.is_prerelease == 'false' }}
+            type=sha
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  scan:
+    name: Security Scan
+    needs: [image]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.image.outputs.version }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+
+  chart:
+    name: Package and Push Helm Chart
+    runs-on: ubuntu-latest
+    needs: [image]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login "${{ env.REGISTRY }}" --username "${{ github.actor }}" --password-stdin
+
+      - name: Set chart version
+        run: |
+          VERSION="${{ needs.image.outputs.version }}"
+          sed -i "s/^version:.*/version: ${VERSION}/" deploy/chart/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"${VERSION}\"/" deploy/chart/Chart.yaml
+
+      - name: Package chart
+        run: helm package deploy/chart --destination .cr-release-packages
+
+      - name: Push chart to GHCR
+        run: helm push .cr-release-packages/*.tgz oci://${{ env.CHART_REGISTRY }}
+
+  github-release:
+    name: Create GitHub Release
+    needs: [image, chart]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          prerelease: ${{ needs.image.outputs.is_prerelease == 'true' }}
+          body: |
+            ## Installation
+
+            ### Helm (OCI)
+
+            ```bash
+            helm upgrade --install dataprepper-operator \
+              oci://ghcr.io/kaasops/charts/dataprepper-operator \
+              --version ${{ needs.image.outputs.version }} \
+              --namespace dataprepper-system --create-namespace
+            ```
+
+            ### Container Image
+
+            ```
+            ghcr.io/${{ github.repository }}:${{ needs.image.outputs.version }}
+            ```

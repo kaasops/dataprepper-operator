@@ -1,0 +1,12 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperDefaults
+metadata:
+  name: default
+  namespace: {{ .Namespace }}
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  resources:
+    perReplica:
+      requests:
+        cpu: 100m
+        memory: 256Mi

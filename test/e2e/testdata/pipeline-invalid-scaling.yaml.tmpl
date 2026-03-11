@@ -1,0 +1,21 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: e2e-invalid-scaling
+  namespace: {{ .Namespace }}
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: kafka-to-stdout
+      source:
+        kafka:
+          bootstrapServers:
+            - "{{ .BootstrapServers }}"
+          topic: {{ .Topic }}
+          groupId: dp-e2e-invalid-scaling
+          encryptionType: none
+      sink:
+        - stdout: {}
+  scaling:
+    maxReplicas: 2
+    minReplicas: 5

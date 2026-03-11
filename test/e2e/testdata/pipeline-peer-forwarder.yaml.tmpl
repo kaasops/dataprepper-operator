@@ -1,0 +1,23 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: e2e-peer-forwarder
+  namespace: {{ .Namespace }}
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: kafka-to-stdout
+      source:
+        kafka:
+          bootstrapServers:
+            - "{{ .BootstrapServers }}"
+          topic: {{ .Topic }}
+          groupId: dp-e2e-peer-forwarder
+          encryptionType: none
+      processors:
+        - {"aggregate": {"identification_keys": ["traceId"], "action": {"count": {}}, "group_duration": "30s"}}
+      sink:
+        - stdout: {}
+  scaling:
+    mode: auto
+    maxReplicas: 3

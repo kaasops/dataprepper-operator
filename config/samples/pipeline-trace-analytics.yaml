@@ -1,0 +1,53 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: trace-analytics
+  namespace: observability
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: entry-pipeline
+      source:
+        otel:
+          port: 21890
+          protocols: [traces]
+      buffer:
+        boundedBlocking:
+          bufferSize: 500000
+          batchSize: 10000
+      sink:
+        - pipeline:
+            name: raw-trace-pipeline
+        - pipeline:
+            name: service-map-pipeline
+    - name: raw-trace-pipeline
+      workers: 8
+      source:
+        pipeline:
+          name: entry-pipeline
+      processors:
+        - otel_traces: {}
+      sink:
+        - opensearch:
+            hosts: ["https://opensearch:9200"]
+            indexType: trace-analytics-raw
+            credentialsSecretRef:
+              name: opensearch-credentials
+    - name: service-map-pipeline
+      workers: 8
+      source:
+        pipeline:
+          name: entry-pipeline
+      processors:
+        - service_map:
+            window_duration: 180
+      sink:
+        - opensearch:
+            hosts: ["https://opensearch:9200"]
+            indexType: trace-analytics-service-map
+            credentialsSecretRef:
+              name: opensearch-credentials
+  scaling:
+    mode: auto
+    maxReplicas: 4
+    minReplicas: 2

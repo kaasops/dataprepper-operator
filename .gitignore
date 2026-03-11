@@ -1,0 +1,45 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+bin/
+
+# Go
+*.out
+go.work
+go.work.sum
+
+# Generated
+dist/
+Dockerfile.cross
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Editor and IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Test reports
+test/e2e/reports/
+cover.out
+
+# Secrets and local overrides
+*.kubeconfig
+.local/
+*.pem
+*.key
+*.crt
+.env
+.env.*

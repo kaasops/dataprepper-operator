@@ -1,0 +1,30 @@
+{{- if .Values.rbacHelpers.enable }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/name: {{ include "dataprepper-operator.name" . }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  name: {{ include "dataprepper-operator.resourceName" (dict "suffix" "dataprepperpipeline-editor-role" "context" $) }}
+rules:
+- apiGroups:
+  - dataprepper.kaasops.io
+  resources:
+  - dataprepperpipelines
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - dataprepper.kaasops.io
+  resources:
+  - dataprepperpipelines/status
+  verbs:
+  - get
+{{- end }}

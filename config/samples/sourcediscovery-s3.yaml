@@ -1,0 +1,47 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperSourceDiscovery
+metadata:
+  name: s3-log-prefixes
+  namespace: observability
+spec:
+  s3:
+    region: us-east-1
+    bucket: application-logs
+    prefixSelector:
+      prefix: "logs/"
+      depth: 1
+      excludePatterns: ["logs-internal-*"]
+    # endpoint: "http://minio:9000"    # uncomment for MinIO
+    # forcePathStyle: true              # uncomment for MinIO
+    # credentialsSecretRef:             # omit for IRSA
+    #   name: s3-credentials
+    sqsQueueMapping:
+      queueUrlTemplate: "https://sqs.us-east-1.amazonaws.com/123456789012/{{prefix}}-notifications"
+      overrides:
+        "logs/special/": "https://sqs.us-east-1.amazonaws.com/123456789012/custom-special-queue"
+    pollInterval: "60s"
+    cleanupPolicy: Orphan
+  pipelineTemplate:
+    spec:
+      image: opensearchproject/data-prepper:2.10.0
+      pipelines:
+        - name: "{{ .DiscoveredName }}-pipeline"
+          source:
+            s3:
+              bucket: "{{ .Metadata.bucket }}"
+              region: "{{ .Metadata.region }}"
+              prefix: "{{ .Metadata.prefix }}"
+              sqsQueueUrl: "{{ .Metadata.sqsQueueUrl }}"
+          processors:
+            - grok:
+                match:
+                  message: ["%{COMMONAPACHELOG}"]
+          sink:
+            - opensearch:
+                hosts: ["https://opensearch:9200"]
+                index: "{{ .DiscoveredName }}-%{yyyy.MM.dd}"
+                credentialsSecretRef:
+                  name: opensearch-credentials
+      scaling:
+        mode: manual
+        fixedReplicas: 1

@@ -1,0 +1,19 @@
+{{- if .Values.manager.podDisruptionBudget.enable }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "dataprepper-operator.resourceName" (dict "suffix" "controller-manager" "context" $) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/name: {{ include "dataprepper-operator.name" . }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    control-plane: controller-manager
+spec:
+  minAvailable: {{ .Values.manager.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "dataprepper-operator.name" . }}
+      control-plane: controller-manager
+{{- end }}

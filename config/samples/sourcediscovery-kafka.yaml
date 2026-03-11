@@ -1,0 +1,40 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperSourceDiscovery
+metadata:
+  name: all-app-logs
+  namespace: observability
+spec:
+  kafka:
+    bootstrapServers: ["kafka-0.kafka:9092"]
+    credentialsSecretRef:
+      name: kafka-credentials
+    topicSelector:
+      prefix: "logs-"
+      excludePatterns: ["logs-internal-*"]
+    pollInterval: "30s"
+    cleanupPolicy: Orphan
+  pipelineTemplate:
+    spec:
+      image: opensearchproject/data-prepper:2.10.0
+      pipelines:
+        - name: "{{ .DiscoveredName }}-pipeline"
+          source:
+            kafka:
+              bootstrapServers: ["kafka-0.kafka:9092"]
+              topic: "{{ .DiscoveredName }}"
+              groupId: "dp-{{ .DiscoveredName }}"
+              credentialsSecretRef:
+                name: kafka-credentials
+          processors:
+            - grok:
+                match:
+                  message: ["%{COMMONAPACHELOG}"]
+          sink:
+            - opensearch:
+                hosts: ["https://opensearch:9200"]
+                index: "{{ .DiscoveredName }}-%{yyyy.MM.dd}"
+                credentialsSecretRef:
+                  name: opensearch-credentials
+      scaling:
+        mode: auto
+        maxReplicas: 4

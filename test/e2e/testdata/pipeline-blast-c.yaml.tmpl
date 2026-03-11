@@ -1,0 +1,21 @@
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: e2e-blast-c
+  namespace: {{ .Namespace }}
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  pipelines:
+    - name: kafka-to-stdout
+      source:
+        kafka:
+          bootstrapServers:
+            - "{{ .BootstrapServers }}"
+          topic: {{ .TopicC }}
+          groupId: dp-e2e-blast-c
+          encryptionType: none
+      sink:
+        - stdout: {}
+  scaling:
+    mode: manual
+    fixedReplicas: 1
