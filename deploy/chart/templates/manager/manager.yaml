@@ -49,6 +49,9 @@ spec:
         - --metrics-bind-address=0
         {{- end }}
         - --health-probe-bind-address=:8081
+        {{- if .Values.webhook.enable }}
+        - --enable-webhook
+        {{- end }}
         {{- range .Values.manager.args }}
         - {{ . }}
         {{- end }}
