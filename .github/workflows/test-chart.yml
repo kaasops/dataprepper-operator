@@ -73,3 +73,15 @@ jobs:
       - name: Check Helm release status
         run: |
           make helm-status
+
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          echo "=== Pods ==="
+          kubectl get pods -A
+          echo "=== Describe deployment ==="
+          kubectl describe deployment -n dataprepper-system
+          echo "=== Pod logs ==="
+          kubectl logs -l control-plane=controller-manager -n dataprepper-system --tail=50 || true
+          echo "=== Events ==="
+          kubectl get events -n dataprepper-system --sort-by=.lastTimestamp
