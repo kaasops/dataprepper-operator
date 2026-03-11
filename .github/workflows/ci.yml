@@ -20,8 +20,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - uses: golangci/golangci-lint-action@v6
+      - uses: golangci/golangci-lint-action@v7
         with:
+          version: v2
           args: --no-config --enable revive,goconst,prealloc,staticcheck,unparam,gocyclo
 
   govulncheck:
