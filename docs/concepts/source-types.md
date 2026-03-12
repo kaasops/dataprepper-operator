@@ -21,7 +21,7 @@ The source type determines the pipeline's scaling strategy.
 | `consumerConfig` | `map[string]string` | No | Additional Kafka consumer parameters (passed as `consumer_config` in Data Prepper config) |
 | `encryptionType` | `string` | No | Encryption type for Kafka connection: `ssl` (default) or `none`. Set to `none` for PLAINTEXT Kafka clusters without TLS |
 
-**Authentication:** SASL/PLAIN (username + password). The referenced Secret must contain `username` and `password` keys. See [Security — Expected Secret Keys](../operations/security.md#expected-secret-keys) for details.
+**Authentication:** SASL/PLAIN (username + password). The referenced Secret must contain `username` and `password` keys. See [Security — Expected Secret Keys](../operations/security.md#expected-secret-keys) for details. For Kafka clusters without authentication, omit the `credentialsSecretRef` field entirely.
 
 **Encryption:** Data Prepper defaults to SSL encryption for Kafka connections. If your Kafka cluster uses PLAINTEXT listeners (no TLS), you must explicitly set `encryptionType: none`. Without this setting, Data Prepper will fail to connect with a "Connection terminated during authentication" error.
 

@@ -12,7 +12,7 @@ When using a Kafka source, the operator applies partition-based scaling (KafkaSo
 
 ### Formulas
 
-- **replicas** = min(partitions, maxReplicas), but not less than minReplicas
+- **replicas** = min(partitions, maxReplicas), but not less than minReplicas (default: 1 if omitted)
 - **topic.workers** = ceil(partitions / replicas)
 - **totalConsumers** = replicas * topic.workers (approximately equal to the partition count)
 
