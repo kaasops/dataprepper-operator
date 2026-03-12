@@ -172,6 +172,24 @@ For individual discovered sources, pipeline specification overrides can be defin
 
 This allows, for example, setting increased resources or a different replica count for specific topics while keeping the general template for the rest.
 
+### Override Merge Semantics
+
+Overrides replace top-level fields of the rendered pipeline spec. The merge is **not deep**:
+
+- `scaling` in override → completely replaces template `scaling`
+- `resources` in override → completely replaces template `resources`
+- `pipelines` in override → **completely replaces the entire pipelines array**
+
+If you only need to change scaling or resources, specify only those fields in the override.
+Do not include `pipelines` in the override unless you want to replace the entire pipeline definition.
+
+**Order of operations:**
+
+1. Go template rendered with `{{ .DiscoveredName }}` substitution
+2. Override spec merged (field-level replace) if glob pattern matches
+3. Kafka `bootstrapServers` / `credentialsSecretRef` inherited from discovery config (if not already set)
+4. `DataPrepperDefaults` applied during pipeline reconciliation (fills remaining empty fields)
+
 ---
 
 ## Topic Name Sanitization
