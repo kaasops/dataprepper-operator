@@ -9,5 +9,6 @@
 | `sourcediscovery-kafka.yaml` | Auto-discovery of Kafka topics by prefix |
 | `sourcediscovery-s3.yaml` | Auto-discovery of S3 prefixes |
 
-**Start here:** apply `defaults.yaml`, then `pipeline-simple-kafka.yaml`.
+**Start here:** `pipeline-simple-kafka.yaml` is self-contained — apply it directly.
+For the defaults workflow, apply `defaults.yaml` first, then `pipeline-with-defaults.yaml`.
 See [Quick Start](../../docs/getting-started/quickstart.md) for a step-by-step guide.

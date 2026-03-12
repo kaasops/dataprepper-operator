@@ -79,6 +79,9 @@ spec:
       requests:
         cpu: 500m
         memory: 512Mi
+  dataPrepperConfig:
+    ssl: false
+    processorShutdownTimeout: "30s"
   serviceMonitor:
     enabled: true
     interval: "30s"
