@@ -53,11 +53,10 @@ spec:
         - name: "{{ .DiscoveredName }}-pipeline"
           source:
             kafka:
-              bootstrapServers: ["kafka-0.kafka:9092"]
+              # bootstrapServers and credentialsSecretRef inherited from spec.kafka
               topic: "{{ .DiscoveredName }}"
               groupId: "dp-{{ .DiscoveredName }}"
-              credentialsSecretRef:
-                name: kafka-credentials
+              # encryptionType: none  # uncomment for PLAINTEXT Kafka (default: ssl)
           processors:
             - grok:
                 match:
