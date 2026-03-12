@@ -174,6 +174,29 @@ The validating webhook requires TLS certificates to function. Two options are su
 - **cert-manager** - automatic certificate generation and rotation (recommended)
 - **Pre-existing Secret** - manually created Secret with a TLS certificate
 
+### Webhook TLS Without cert-manager
+
+If you cannot use cert-manager, create a TLS Secret manually:
+
+```bash
+# Generate a self-signed certificate
+openssl req -x509 -newkey rsa:4096 -keyout tls.key -out tls.crt \
+  -days 365 -nodes \
+  -subj "/CN=dataprepper-operator-webhook.dataprepper-system.svc"
+
+# Create the Secret
+kubectl create secret tls dataprepper-webhook-certs \
+  --cert=tls.crt --key=tls.key \
+  -n dataprepper-system
+
+# Install with the pre-existing Secret
+helm upgrade --install dataprepper-operator deploy/chart \
+  --set webhook.enable=true \
+  --set webhook.certSecret=dataprepper-webhook-certs
+```
+
+> **Note:** You are responsible for rotating this certificate before expiry.
+
 ## Webhook Validation
 
 The validating webhook rejects invalid Pipeline CRs before they are created in the cluster. This prevents invalid configurations from entering the reconcile loop.

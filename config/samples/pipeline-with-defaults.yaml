@@ -1,0 +1,31 @@
+# Minimal pipeline that relies on DataPrepperDefaults (defaults.yaml) for:
+# - image, resources, serviceMonitor
+# - kafka bootstrapServers and credentialsSecretRef
+# - opensearch hosts and credentialsSecretRef
+#
+# Apply defaults first:  kubectl apply -f config/samples/defaults.yaml
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperPipeline
+metadata:
+  name: logs-app2
+  namespace: observability
+spec:
+  pipelines:
+    - name: kafka-to-opensearch
+      source:
+        kafka:
+          # bootstrapServers and credentialsSecretRef from DataPrepperDefaults
+          topic: logs-app2
+          groupId: dp-logs-app2
+          # encryptionType: none  # uncomment for PLAINTEXT Kafka (default: ssl)
+      processors:
+        - grok:
+            match:
+              message: ["%{COMMONAPACHELOG}"]
+      sink:
+        - opensearch:
+            # hosts and credentialsSecretRef from DataPrepperDefaults
+            index: "logs-app2-%{yyyy.MM.dd}"
+  scaling:
+    mode: manual
+    fixedReplicas: 2
