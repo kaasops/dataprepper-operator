@@ -38,6 +38,9 @@ source:
     topic: logs-app1
     groupId: dp-logs-app1
     encryptionType: none  # for PLAINTEXT Kafka; omit or set "ssl" for TLS
+    consumerConfig:
+      auto.offset.reset: earliest
+      max.poll.records: "500"
     credentialsSecretRef:
       name: kafka-credentials
 ```

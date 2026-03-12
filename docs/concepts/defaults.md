@@ -43,7 +43,7 @@ The merge uses a nil-check pattern: only empty or nil fields in the Pipeline CR 
 | `pipelines[].sink[].opensearch.hosts` | `spec.sink.opensearch.hosts` | Fill only if pipeline array is empty |
 | `pipelines[].sink[].opensearch.credentialsSecretRef` | `spec.sink.opensearch.credentialsSecretRef` | Fill only if pipeline ref is nil |
 
-Fields **not** available in Defaults (always pipeline-specific): `scaling`, `topic`, `groupId`, `consumerConfig`, S3 sink settings, Kafka sink settings, Stdout sink.
+Fields **not** available in Defaults (always pipeline-specific): `scaling`, `imagePullPolicy`, `topic`, `groupId`, `consumerConfig`, S3 sink settings, Kafka sink settings, Stdout sink.
 
 > **Note:** The merge is not a deep merge of nested objects. For top-level fields (`resources`, `dataPrepperConfig`, `serviceMonitor`), the entire object is taken from either the Pipeline or Defaults — there is no field-by-field merge within these objects. For Kafka and OpenSearch, individual fields (`bootstrapServers`, `hosts`, `credentialsSecretRef`) are merged independently.
 
