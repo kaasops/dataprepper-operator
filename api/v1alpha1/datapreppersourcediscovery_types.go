@@ -12,12 +12,12 @@ type KafkaTopicSelectorSpec struct {
 // KafkaDiscoverySpec configures Kafka-based source discovery.
 type KafkaDiscoverySpec struct {
 	// +kubebuilder:validation:MinItems=1
-	BootstrapServers     []string               `json:"bootstrapServers"`
-	CredentialsSecretRef *SecretReference       `json:"credentialsSecretRef,omitempty"`
+	BootstrapServers     []string         `json:"bootstrapServers"`
+	CredentialsSecretRef *SecretReference `json:"credentialsSecretRef,omitempty"`
 	// +kubebuilder:validation:Enum=none;ssl
-	EncryptionType       string                 `json:"encryptionType,omitempty"`
-	TopicSelector        KafkaTopicSelectorSpec `json:"topicSelector"`
-	PollInterval         string                 `json:"pollInterval,omitempty"`
+	EncryptionType string                 `json:"encryptionType,omitempty"`
+	TopicSelector  KafkaTopicSelectorSpec `json:"topicSelector"`
+	PollInterval   string                 `json:"pollInterval,omitempty"`
 	// +kubebuilder:validation:Enum=Delete;Orphan
 	CleanupPolicy string `json:"cleanupPolicy,omitempty"`
 }
