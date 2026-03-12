@@ -535,6 +535,72 @@ func TestGeneratePipelineConfig(t *testing.T) {
 			},
 		},
 		{
+			name: "kafka encryptionType rendered as encryption.type",
+			pipelines: []dataprepperv1alpha1.PipelineDefinition{
+				{
+					Name: "enc-pipeline",
+					Source: dataprepperv1alpha1.SourceSpec{
+						Kafka: &dataprepperv1alpha1.KafkaSourceSpec{
+							BootstrapServers: []string{"kafka:9092"},
+							Topic:            "test-topic",
+							GroupID:          "test-group",
+							EncryptionType:   "none",
+						},
+					},
+					Sink: []dataprepperv1alpha1.SinkSpec{
+						{OpenSearch: &dataprepperv1alpha1.OpenSearchSinkSpec{
+							Hosts: []string{"https://os:9200"},
+						}},
+					},
+				},
+			},
+			topicWorkers: 0,
+			check: func(t *testing.T, config map[string]any) {
+				p := config["enc-pipeline"].(map[string]any)
+				source := p["source"].(map[string]any)
+				kafka := source["kafka"].(map[string]any)
+				enc, ok := kafka["encryption"]
+				require.True(t, ok, "encryption block should be present")
+				encMap := enc.(map[string]any)
+				assert.Equal(t, "none", encMap["type"])
+			},
+		},
+		{
+			name: "kafka consumerConfig rendered as consumer_config",
+			pipelines: []dataprepperv1alpha1.PipelineDefinition{
+				{
+					Name: "cc-pipeline",
+					Source: dataprepperv1alpha1.SourceSpec{
+						Kafka: &dataprepperv1alpha1.KafkaSourceSpec{
+							BootstrapServers: []string{"kafka:9092"},
+							Topic:            "test-topic",
+							GroupID:          "test-group",
+							ConsumerConfig: map[string]string{
+								"auto.offset.reset": "earliest",
+								"max.poll.records":  "500",
+							},
+						},
+					},
+					Sink: []dataprepperv1alpha1.SinkSpec{
+						{OpenSearch: &dataprepperv1alpha1.OpenSearchSinkSpec{
+							Hosts: []string{"https://os:9200"},
+						}},
+					},
+				},
+			},
+			topicWorkers: 0,
+			check: func(t *testing.T, config map[string]any) {
+				p := config["cc-pipeline"].(map[string]any)
+				source := p["source"].(map[string]any)
+				kafka := source["kafka"].(map[string]any)
+				cc, ok := kafka["consumer_config"]
+				require.True(t, ok, "consumer_config should be present")
+				ccMap := cc.(map[string]string)
+				assert.Equal(t, "earliest", ccMap["auto.offset.reset"])
+				assert.Equal(t, "500", ccMap["max.poll.records"])
+			},
+		},
+		{
 			name: "routes merged under route key",
 			pipelines: []dataprepperv1alpha1.PipelineDefinition{
 				{

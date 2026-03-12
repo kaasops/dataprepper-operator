@@ -73,9 +73,9 @@ For detailed descriptions of these types, see the [DataPrepperPipeline API Refer
 ## Merge Rules
 
 1. Fields from DataPrepperPipeline always take priority.
-2. For structural fields (resources, dataPrepperConfig, serviceMonitor), merging is performed at the nested field level.
-3. For map fields, values from the Pipeline supplement and override values from Defaults.
-4. For arrays (e.g., sink), merging is not performed - the array is taken entirely from the Pipeline CR if specified.
+2. For top-level structural fields (`resources`, `dataPrepperConfig`, `serviceMonitor`), the entire object is taken from the Pipeline if specified, otherwise from Defaults — there is no field-by-field merge within these objects.
+3. For Kafka and OpenSearch, individual fields (`bootstrapServers`, `hosts`, `credentialsSecretRef`) are merged independently.
+4. For arrays (e.g., sink), merging is not performed — the array is taken entirely from the Pipeline CR if specified.
 
 ---
 
