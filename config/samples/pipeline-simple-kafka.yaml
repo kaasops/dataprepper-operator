@@ -13,6 +13,7 @@ spec:
           bootstrapServers: ["kafka-0.kafka:9092"]
           topic: logs-app1
           groupId: dp-logs-app1
+          # encryptionType: none  # uncomment for PLAINTEXT Kafka (default: ssl)
           credentialsSecretRef:
             name: kafka-credentials
       processors:

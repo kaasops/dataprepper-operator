@@ -79,6 +79,10 @@ spec:
         memory: 512Mi
 ```
 
+> **Tip:** If your Kafka cluster uses PLAINTEXT listeners (no TLS — common in local
+> development), add `encryptionType: none` to the Kafka source spec.
+> See [Source Types — Kafka](../concepts/source-types.md#kafka) for details.
+
 See the [API Reference](../reference/api/dataprepperpipeline.md) for a full description of all fields.
 
 Apply the manifest:
