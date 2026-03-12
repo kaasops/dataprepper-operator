@@ -149,6 +149,8 @@ dataprepperpipelines.dataprepper.kaasops.io         ...
 datapreppersourcediscoveries.dataprepper.kaasops.io ...
 ```
 
+You can use short names to work with these CRDs: `dpp` (pipelines), `dpsd` (source discoveries), `dpd` (defaults). For example: `kubectl get dpp -A`.
+
 ### Checking Operator Logs
 
 ```bash
