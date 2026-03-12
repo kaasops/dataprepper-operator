@@ -131,6 +131,13 @@ NAME                      AGE
 my-pipeline               1m
 ```
 
+Verify Prometheus is scraping the targets:
+
+```bash
+kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090
+# Open http://localhost:9090/targets and search for "dataprepper"
+```
+
 If the ServiceMonitor CRD is not installed in the cluster (Prometheus Operator is absent),
 the Data Prepper operator handles this situation gracefully - the ServiceMonitor resource is simply
 not created, and the pipeline continues to operate without errors (graceful degradation).
