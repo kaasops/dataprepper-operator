@@ -177,7 +177,7 @@ Discriminated union. Exactly one field must be set in each element of the `sink`
 | index | string | no | Index name template |
 | indexType | string | no | Index type in the Data Prepper configuration |
 | credentialsSecretRef | SecretReference | no | Reference to a Secret containing OpenSearch credentials |
-| dlqSecretRef | SecretReference | no | Reference to a Secret containing Dead Letter Queue credentials |
+| dlqSecretRef | SecretReference | no | **Not yet implemented.** Reserved for future Dead Letter Queue support. Setting this field currently has no effect. |
 | routes | []string | no | Route names for conditional routing (must match names defined in the pipeline's `routes`) |
 
 ### S3SinkSpec
