@@ -145,7 +145,7 @@ If the values differ, reconciliation of the new specification version has not ye
 
 ### Rolling Restart on Secret Change
 
-The operator watches all Secrets referenced by sources and sinks via `credentialsSecretRef` and `dlqSecretRef`. When a Secret's contents change, the operator computes a new config hash and initiates a rolling restart of pods to apply the updated credentials.
+The operator watches all Secrets referenced by sources and sinks via `credentialsSecretRef`. When a Secret's contents change, the operator computes a new config hash and initiates a rolling restart of pods to apply the updated credentials.
 
 ---
 

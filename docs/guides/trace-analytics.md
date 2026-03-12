@@ -196,8 +196,8 @@ In OpenSearch Dashboards, open the Trace Analytics section to visualize traces a
 **Pods are not starting:**
 
 ```bash
-kubectl describe pod -n observability -l app.kubernetes.io/name=trace-analytics
-kubectl logs -n observability -l app.kubernetes.io/name=trace-analytics
+kubectl describe pod -n observability -l app.kubernetes.io/instance=trace-analytics
+kubectl logs -n observability -l app.kubernetes.io/instance=trace-analytics
 ```
 
 **Pipeline graph validation error:**

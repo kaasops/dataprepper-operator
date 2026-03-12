@@ -16,7 +16,7 @@ Each element of the `sink` array in a pipeline is specified as a discriminated u
 | `index` | `string` | No | Index name (supports date patterns) |
 | `indexType` | `string` | No | Index type, e.g., `trace-analytics-raw` |
 | `credentialsSecretRef` | `SecretRef` | No | Reference to a Secret containing credentials |
-| `dlqSecretRef` | `SecretRef` | No | Reference to a Secret for the Dead Letter Queue |
+| `dlqSecretRef` | `SecretRef` | No | **Not yet implemented.** Reserved for future Dead Letter Queue support |
 | `routes` | `[]string` | No | Routes for conditional data delivery |
 
 **Authentication:** HTTP Basic Auth (username + password). The referenced Secret must contain `username` and `password` keys. See [Security — Expected Secret Keys](../operations/security.md#expected-secret-keys) for details.
