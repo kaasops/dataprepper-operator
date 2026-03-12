@@ -24,7 +24,7 @@ func GeneratePipelineConfig(pipelines []dataprepperv1alpha1.PipelineDefinition, 
 			pc["workers"] = topicWorkers
 		}
 		if p.Delay > 0 {
-			pc["delay"] = fmt.Sprintf("%d", p.Delay)
+			pc["delay"] = p.Delay
 		}
 
 		source, err := buildSource(p.Source, topicWorkers)

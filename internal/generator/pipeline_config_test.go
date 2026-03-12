@@ -488,7 +488,7 @@ func TestGeneratePipelineConfig(t *testing.T) {
 			},
 		},
 		{
-			name: "delay field rendered as string",
+			name: "delay field rendered as integer",
 			pipelines: []dataprepperv1alpha1.PipelineDefinition{
 				{
 					Name:  "delay-pipeline",
@@ -508,7 +508,7 @@ func TestGeneratePipelineConfig(t *testing.T) {
 				p := config["delay-pipeline"].(map[string]any)
 				delay, ok := p["delay"]
 				require.True(t, ok, "delay should be present in pipeline config")
-				assert.Equal(t, "500", delay, "delay should be rendered as string '500'")
+				assert.Equal(t, 500, delay, "delay should be rendered as integer")
 			},
 		},
 		{
