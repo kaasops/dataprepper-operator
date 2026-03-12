@@ -1,3 +1,6 @@
+{{- if and .Values.webhook.enable (not .Values.certManager.enable) (not .Values.webhook.certSecret) }}
+{{- fail "webhook.enable=true requires either certManager.enable=true or webhook.certSecret to provide TLS certificates" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -84,6 +87,17 @@ spec:
           {{- else }}
           {}
           {{- end }}
+        {{- if or .Values.manager.env .Values.manager.envOverrides }}
+        env:
+          {{- range .Values.manager.env }}
+          - name: {{ .name }}
+            value: {{ .value | quote }}
+          {{- end }}
+          {{- range $name, $value := .Values.manager.envOverrides }}
+          - name: {{ $name }}
+            value: {{ $value | quote }}
+          {{- end }}
+        {{- end }}
         volumeMounts:
         - name: tmp
           mountPath: /tmp
