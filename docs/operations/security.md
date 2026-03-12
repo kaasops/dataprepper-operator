@@ -106,7 +106,7 @@ Each credential type requires specific keys in the referenced Kubernetes Secret:
 |-----------------|---------------------|-------------------|----------------|
 | Kafka (source & sink) | `username`, `password` | `KAFKA_USERNAME`, `KAFKA_PASSWORD` | SASL/PLAIN |
 | OpenSearch (sink) | `username`, `password` | `OPENSEARCH_USERNAME`, `OPENSEARCH_PASSWORD` | HTTP Basic Auth |
-| S3 (source & sink) | `aws_access_key_id`, `aws_secret_access_key` | — (used by discovery only) | Static AWS credentials |
+| S3 (source & sink) | `aws_access_key_id`, `aws_secret_access_key` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Static AWS credentials injected into Data Prepper pods. Omit when using IRSA. |
 
 **Creating a Kafka credentials Secret:**
 
@@ -146,7 +146,7 @@ kubectl create secret generic s3-credentials \
 **S3:** Two authentication methods are supported:
 
 - **IRSA (IAM Roles for Service Accounts)** — recommended for AWS. Omit the `credentialsSecretRef` field; Data Prepper will use pod metadata credentials automatically. No Secret is needed.
-- **Static credentials** — store `aws_access_key_id` and `aws_secret_access_key` in a Secret. Used by the operator for S3 discovery; for Data Prepper pods, IRSA is preferred.
+- **Static credentials** — store `aws_access_key_id` and `aws_secret_access_key` in a Secret. Credentials are injected as `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables into Data Prepper pods (for both S3 source and S3 sink). Also used by the operator for S3 discovery.
 
 > **Note:** The `SecretReference.key` field in the CRD is optional and currently unused by the operator — it always reads the hardcoded key names listed above.
 
