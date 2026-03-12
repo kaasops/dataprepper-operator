@@ -23,7 +23,15 @@ SHELL = /usr/bin/env bash -o pipefail
 all: build
 
 .PHONY: ci
-ci: lint vulncheck test build ## Run all checks: lint, vulncheck, test, build.
+ci: lint vulncheck test build verify-no-diff ## Run all checks: lint, vulncheck, test, build, verify no uncommitted changes.
+
+.PHONY: verify-no-diff
+verify-no-diff: ## Verify no uncommitted changes after generate/fmt (catches forgotten go fmt, make manifests, etc.).
+	@if [ -n "$$(git diff --name-only)" ]; then \
+		echo "ERROR: working tree dirty after build. Forgot to commit generated changes?"; \
+		git diff --stat; \
+		exit 1; \
+	fi
 
 ##@ General
 
