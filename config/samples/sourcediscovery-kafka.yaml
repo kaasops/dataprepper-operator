@@ -23,6 +23,7 @@ spec:
               bootstrapServers: ["kafka-0.kafka:9092"]
               topic: "{{ .DiscoveredName }}"
               groupId: "dp-{{ .DiscoveredName }}"
+              # encryptionType: none  # uncomment for PLAINTEXT Kafka (default: ssl)
               credentialsSecretRef:
                 name: kafka-credentials
           processors:
