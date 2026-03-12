@@ -149,15 +149,15 @@ var _ = BeforeSuite(func() {
 	cmd = exec.Command("kubectl", "create", "namespace", testNamespace)
 	_, _ = utils.Run(cmd) // ignore already-exists error
 
-	By("verifying the operator is running")
+	By("waiting for the operator pod to be ready")
 	Eventually(func(g Gomega) {
-		cmd := exec.Command("kubectl", "get", "pods",
+		cmd := exec.Command("kubectl", "wait", "pod",
 			"-l", "control-plane=controller-manager",
 			"-n", operatorNamespace,
-			"-o", "jsonpath={.items[*].status.phase}")
-		output, err := utils.Run(cmd)
+			"--for", "condition=Ready",
+			"--timeout=5s")
+		_, err := utils.Run(cmd)
 		g.Expect(err).NotTo(HaveOccurred())
-		g.Expect(output).To(ContainSubstring("Running"))
 	}, config.OperatorReadyTimeout, config.DefaultPollInterval).Should(Succeed())
 })
 
