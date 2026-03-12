@@ -15,7 +15,10 @@ metadata:
 spec:
   replicas: {{ .Values.manager.replicas }}
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "dataprepper-operator.name" . }}
