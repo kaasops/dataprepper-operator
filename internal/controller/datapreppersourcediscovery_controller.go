@@ -560,9 +560,9 @@ func (r *DataPrepperSourceDiscoveryReconciler) renderPipelineSpec(disc *dataprep
 	return &spec, nil
 }
 
-// inheritKafkaDiscoveryConfig fills empty bootstrapServers and credentialsSecretRef
-// in Kafka sources from the discovery's Kafka configuration, eliminating the need
-// for users to duplicate these fields in the pipeline template.
+// inheritKafkaDiscoveryConfig fills empty bootstrapServers, credentialsSecretRef,
+// and encryptionType in Kafka sources from the discovery's Kafka configuration,
+// eliminating the need for users to duplicate these fields in the pipeline template.
 func inheritKafkaDiscoveryConfig(spec *dataprepperv1alpha1.DataPrepperPipelineSpec, kafkaDisc *dataprepperv1alpha1.KafkaDiscoverySpec) {
 	for i := range spec.Pipelines {
 		kafkaSrc := spec.Pipelines[i].Source.Kafka
@@ -574,6 +574,9 @@ func inheritKafkaDiscoveryConfig(spec *dataprepperv1alpha1.DataPrepperPipelineSp
 		}
 		if kafkaSrc.CredentialsSecretRef == nil && kafkaDisc.CredentialsSecretRef != nil {
 			kafkaSrc.CredentialsSecretRef = kafkaDisc.CredentialsSecretRef.DeepCopy()
+		}
+		if kafkaSrc.EncryptionType == "" && kafkaDisc.EncryptionType != "" {
+			kafkaSrc.EncryptionType = kafkaDisc.EncryptionType
 		}
 	}
 }
