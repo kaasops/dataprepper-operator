@@ -49,12 +49,40 @@ kubectl get crd | grep dataprepper
 
 You should see the controller pod in `Running` status and three CRDs registered.
 
-## Step 6. Deploy a Test Pipeline
+## Step 6. Deploy Test Infrastructure
 
-For a quick smoke test, you need a Kafka cluster and an OpenSearch cluster accessible from the kind cluster. You can use Helm charts to deploy them:
+Install Kafka with PLAINTEXT listeners (single broker, suitable for local testing):
 
-- **Kafka:** [Bitnami Kafka](https://github.com/bitnami/charts/tree/main/bitnami/kafka) or [Strimzi](https://strimzi.io/quickstarts/)
-- **OpenSearch:** [OpenSearch Helm Charts](https://github.com/opensearch-project/helm-charts)
+```bash
+helm install kafka oci://registry-1.docker.io/bitnamicharts/kafka \
+  --namespace observability --create-namespace \
+  --set listeners.client.protocol=PLAINTEXT \
+  --set controller.replicaCount=1
+```
+
+Install OpenSearch (single node, security disabled for testing):
+
+```bash
+helm repo add opensearch https://opensearch-project.github.io/helm-charts/
+helm install opensearch opensearch/opensearch \
+  --namespace observability \
+  --set singleNode=true \
+  --set securityConfig.enabled=false
+```
+
+Wait for readiness:
+
+```bash
+kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=kafka \
+  -n observability --timeout=180s
+kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=opensearch-cluster-master \
+  -n observability --timeout=180s
+```
+
+> **Tip:** For alternative Kafka options, see [Strimzi](https://strimzi.io/quickstarts/).
+> For OpenSearch, see [OpenSearch Helm Charts](https://github.com/opensearch-project/helm-charts).
+
+## Step 7. Deploy a Test Pipeline
 
 Once your infrastructure is ready, create secrets and apply a sample pipeline:
 
