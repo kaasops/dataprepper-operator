@@ -49,6 +49,7 @@ spec:
     bootstrapServers: ["kafka-0.kafka:9092"]
     credentialsSecretRef:
       name: kafka-credentials
+    # encryptionType: none  # uncomment for PLAINTEXT Kafka (default: ssl)
     topicSelector:
       prefix: "logs-"
       excludePatterns: ["logs-internal-*"]
@@ -61,10 +62,9 @@ spec:
         - name: "{{ .DiscoveredName }}-pipeline"
           source:
             kafka:
-              # bootstrapServers and credentialsSecretRef inherited from spec.kafka
+              # bootstrapServers, credentialsSecretRef, and encryptionType inherited from spec.kafka
               topic: "{{ .DiscoveredName }}"
               groupId: "dp-{{ .DiscoveredName }}"
-              # encryptionType: none  # uncomment for PLAINTEXT Kafka (default: ssl)
           processors:
             - grok:
                 match:

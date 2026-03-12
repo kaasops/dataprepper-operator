@@ -80,6 +80,11 @@ spec:
                     required:
                     - name
                     type: object
+                  encryptionType:
+                    enum:
+                    - none
+                    - ssl
+                    type: string
                   pollInterval:
                     type: string
                   topicSelector:

@@ -556,6 +556,47 @@ var _ = Describe("DataPrepperSourceDiscovery Helper Functions", func() {
 			Expect(spec.Pipelines[0].Source.Kafka.CredentialsSecretRef.Name).To(Equal("other-creds"))
 		})
 
+		It("should inherit encryptionType from discovery config", func() {
+			spec := &dataprepperv1alpha1.DataPrepperPipelineSpec{
+				Pipelines: []dataprepperv1alpha1.PipelineDefinition{{
+					Name: "test",
+					Source: dataprepperv1alpha1.SourceSpec{
+						Kafka: &dataprepperv1alpha1.KafkaSourceSpec{
+							Topic:   "my-topic",
+							GroupID: "my-group",
+						},
+					},
+				}},
+			}
+			kafkaDisc := &dataprepperv1alpha1.KafkaDiscoverySpec{
+				BootstrapServers: []string{"kafka:9092"},
+				EncryptionType:   "none",
+			}
+			inheritKafkaDiscoveryConfig(spec, kafkaDisc)
+			Expect(spec.Pipelines[0].Source.Kafka.EncryptionType).To(Equal("none"))
+		})
+
+		It("should not override explicit encryptionType", func() {
+			spec := &dataprepperv1alpha1.DataPrepperPipelineSpec{
+				Pipelines: []dataprepperv1alpha1.PipelineDefinition{{
+					Name: "test",
+					Source: dataprepperv1alpha1.SourceSpec{
+						Kafka: &dataprepperv1alpha1.KafkaSourceSpec{
+							Topic:          "my-topic",
+							GroupID:        "my-group",
+							EncryptionType: "ssl",
+						},
+					},
+				}},
+			}
+			kafkaDisc := &dataprepperv1alpha1.KafkaDiscoverySpec{
+				BootstrapServers: []string{"kafka:9092"},
+				EncryptionType:   "none",
+			}
+			inheritKafkaDiscoveryConfig(spec, kafkaDisc)
+			Expect(spec.Pipelines[0].Source.Kafka.EncryptionType).To(Equal("ssl"))
+		})
+
 		It("should skip non-Kafka sources", func() {
 			spec := &dataprepperv1alpha1.DataPrepperPipelineSpec{
 				Pipelines: []dataprepperv1alpha1.PipelineDefinition{{

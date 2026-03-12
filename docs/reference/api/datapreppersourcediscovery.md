@@ -30,6 +30,7 @@ Configuration for Kafka topic discovery. The operator periodically polls the Kaf
 |-------|------|----------|-------------|
 | bootstrapServers | []string | yes | Kafka bootstrap server addresses |
 | credentialsSecretRef | SecretReference | no | Reference to a Kubernetes Secret containing Kafka connection credentials |
+| encryptionType | string | no | Encryption type for Kafka connection: `ssl` (default) or `none`. Inherited by child pipelines if not set in the template |
 | topicSelector | KafkaTopicSelectorSpec | yes | Topic selection filter |
 | pollInterval | string | no | Poll interval (default: `30s`). Format: Go duration (`30s`, `1m`, `5m`) |
 | cleanupPolicy | string | no | Cleanup policy when a discovered source disappears: `Orphan` (keep the CR) or `Delete` (remove the CR) |

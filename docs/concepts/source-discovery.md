@@ -53,7 +53,7 @@ spec:
         - name: "{{ .DiscoveredName }}-pipeline"
           source:
             kafka:
-              # bootstrapServers and credentialsSecretRef inherited from spec.kafka
+              # bootstrapServers, credentialsSecretRef, and encryptionType inherited from spec.kafka
               topic: "{{ .DiscoveredName }}"
               groupId: "dp-{{ .DiscoveredName }}"
               # encryptionType: none  # uncomment for PLAINTEXT Kafka (default: ssl)
@@ -201,7 +201,7 @@ When creating Pipeline CRs from discovered sources, the operator sanitizes the s
 
 ## Kafka Configuration Inheritance
 
-When using Kafka discovery, child pipelines automatically inherit `bootstrapServers` and `credentialsSecretRef` from the discovery's `spec.kafka` configuration if these fields are not explicitly set in the pipeline template.
+When using Kafka discovery, child pipelines automatically inherit `bootstrapServers`, `credentialsSecretRef`, and `encryptionType` from the discovery's `spec.kafka` configuration if these fields are not explicitly set in the pipeline template.
 
 This means you can omit these fields from the `pipelineTemplate` to avoid duplication:
 
@@ -220,8 +220,8 @@ spec:
         - name: "{{ .DiscoveredName }}-pipeline"
           source:
             kafka:
-              # bootstrapServers and credentialsSecretRef are inherited
-              # from spec.kafka automatically
+              # bootstrapServers, credentialsSecretRef, and encryptionType
+              # are inherited from spec.kafka automatically
               topic: "{{ .DiscoveredName }}"
               groupId: "dp-{{ .DiscoveredName }}"
           sink:
