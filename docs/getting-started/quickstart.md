@@ -70,7 +70,7 @@ spec:
             credentialsSecretRef:
               name: opensearch-credentials
   scaling:
-    mode: manual
+    mode: manual        # or "auto" for partition-based scaling — see below
     fixedReplicas: 3
   resources:
     perReplica:
@@ -78,6 +78,10 @@ spec:
         cpu: 500m
         memory: 512Mi
 ```
+
+> **Tip:** For Kafka sources, the operator can automatically scale replicas based on
+> partition count. Set `scaling.mode: auto` with `maxReplicas` instead of `fixedReplicas`.
+> See [Scaling](../concepts/scaling.md) for details.
 
 > **Tip:** If your Kafka cluster uses PLAINTEXT listeners (no TLS — common in local
 > development), add `encryptionType: none` to the Kafka source spec.
