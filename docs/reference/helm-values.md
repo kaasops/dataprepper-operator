@@ -31,6 +31,9 @@ helm install dataprepper-operator deploy/chart \
 | manager.image.repository | `ghcr.io/kaasops/dataprepper-operator` | Controller Docker image repository |
 | manager.image.tag | `""` (defaults to `.Chart.AppVersion`) | Docker image tag |
 | manager.image.pullPolicy | `IfNotPresent` | Image pull policy: `IfNotPresent`, `Always`, `Never` |
+| manager.maxConcurrentReconciles | `1` | Maximum concurrent reconciles per controller. Increase for large-scale deployments (see [Large-Scale Deployments](../operations/large-scale.md)) |
+| manager.kubeApiQps | `0` | Kubernetes API client QPS. `0` uses controller-runtime defaults (~20) |
+| manager.kubeApiBurst | `0` | Kubernetes API client burst. `0` uses controller-runtime defaults (~30) |
 | manager.args | `[--leader-elect]` | Controller command-line arguments. `--leader-elect` enables leader election for correct operation with multiple replicas |
 | manager.env | `[]` | Array of environment variables in Kubernetes `EnvVar` format |
 | manager.envOverrides | `{}` | Environment variable overrides in `map[string]string` format. When a name conflicts with `env`, the value from `envOverrides` takes priority. Convenient for use with `--set` |
@@ -50,10 +53,10 @@ helm install dataprepper-operator deploy/chart \
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| manager.resources.limits.cpu | `1` | CPU limit |
-| manager.resources.limits.memory | `512Mi` | Memory limit |
-| manager.resources.requests.cpu | `100m` | CPU request |
-| manager.resources.requests.memory | `128Mi` | Memory request |
+| manager.resources.limits.cpu | `2` | CPU limit |
+| manager.resources.limits.memory | `1Gi` | Memory limit |
+| manager.resources.requests.cpu | `200m` | CPU request |
+| manager.resources.requests.memory | `256Mi` | Memory request |
 
 ### Pod Placement
 
@@ -154,11 +157,11 @@ manager:
     pullPolicy: IfNotPresent
   resources:
     limits:
-      cpu: "1"
-      memory: 512Mi
+      cpu: "2"
+      memory: 1Gi
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 200m
+      memory: 256Mi
 
 crd:
   enable: true

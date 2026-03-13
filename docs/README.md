@@ -42,6 +42,7 @@ Kubernetes operator for managing OpenSearch Data Prepper pipelines.
 
 - [Security](operations/security.md) - RBAC, Secrets, TLS, Pod Security
 - [High Availability](operations/high-availability.md) - leader election, multi-replica
+- [Large-Scale Deployments](operations/large-scale.md) - tuning for hundreds of pipelines
 - [Troubleshooting](operations/troubleshooting.md) - diagnostics and common issues
 - [Upgrading](operations/upgrading.md) - upgrading the operator, CRDs, and Data Prepper
 
