@@ -58,6 +58,15 @@ spec:
         {{- if .Values.webhook.enable }}
         - --enable-webhook
         {{- end }}
+        {{- if gt (int .Values.manager.maxConcurrentReconciles) 0 }}
+        - --max-concurrent-reconciles={{ int .Values.manager.maxConcurrentReconciles }}
+        {{- end }}
+        {{- if gt (int .Values.manager.kubeApiQps) 0 }}
+        - --kube-api-qps={{ int .Values.manager.kubeApiQps }}
+        {{- end }}
+        {{- if gt (int .Values.manager.kubeApiBurst) 0 }}
+        - --kube-api-burst={{ int .Values.manager.kubeApiBurst }}
+        {{- end }}
         {{- range .Values.manager.args }}
         - {{ . }}
         {{- end }}

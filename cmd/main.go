@@ -75,9 +75,18 @@ func main() {
 	var secureMetrics bool
 	var enableHTTP2 bool
 	var watchNamespaces string
+	var maxConcurrentReconciles int
+	var kubeAPIQPS float64
+	var kubeAPIBurst int
 	var tlsOpts []func(*tls.Config)
 	flag.StringVar(&watchNamespaces, "watch-namespaces", "",
 		"Comma-separated list of namespaces to watch. If empty, watches all namespaces.")
+	flag.IntVar(&maxConcurrentReconciles, "max-concurrent-reconciles", 1,
+		"Maximum number of concurrent reconciles per controller.")
+	flag.Float64Var(&kubeAPIQPS, "kube-api-qps", 0,
+		"QPS to use for the Kubernetes API client. 0 uses controller-runtime defaults.")
+	flag.IntVar(&kubeAPIBurst, "kube-api-burst", 0,
+		"Burst to use for the Kubernetes API client. 0 uses controller-runtime defaults.")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", "0", "The address the metrics endpoint binds to. "+
 		"Use :8443 for HTTPS or :8080 for HTTP, or leave as 0 to disable the metrics service.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
@@ -185,7 +194,15 @@ func main() {
 		setupLog.Info("Restricting watch to namespaces", "namespaces", slices.Sorted(maps.Keys(defaultNamespaces)))
 	}
 
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+	restConfig := ctrl.GetConfigOrDie()
+	if kubeAPIQPS > 0 {
+		restConfig.QPS = float32(kubeAPIQPS)
+	}
+	if kubeAPIBurst > 0 {
+		restConfig.Burst = kubeAPIBurst
+	}
+
+	mgr, err := ctrl.NewManager(restConfig, ctrl.Options{
 		Scheme:                 scheme,
 		Cache:                  cacheOpts,
 		Metrics:                metricsServerOptions,
@@ -229,7 +246,7 @@ func main() {
 		Recorder:                mgr.GetEventRecorderFor("dataprepper-pipeline"), //nolint:staticcheck // TODO: migrate
 		AdminClientFactory:      kafka.NewAdminClient,
 		ServiceMonitorAvailable: serviceMonitorAvailable,
-	}).SetupWithManager(mgr); err != nil {
+	}).SetupWithManager(mgr, maxConcurrentReconciles); err != nil {
 		setupLog.Error(err, "Failed to create controller", "controller", "DataPrepperPipeline")
 		os.Exit(1)
 	}
@@ -239,7 +256,7 @@ func main() {
 		Recorder:           mgr.GetEventRecorderFor("dataprepper-discovery"), //nolint:staticcheck // TODO: migrate
 		AdminClientFactory: kafka.NewAdminClient,
 		S3ClientFactory:    s3client.NewS3Client,
-	}).SetupWithManager(mgr); err != nil {
+	}).SetupWithManager(mgr, maxConcurrentReconciles); err != nil {
 		setupLog.Error(err, "Failed to create controller", "controller", "DataPrepperSourceDiscovery")
 		os.Exit(1)
 	}
@@ -247,7 +264,7 @@ func main() {
 		Client:   mgr.GetClient(),
 		Scheme:   mgr.GetScheme(),
 		Recorder: mgr.GetEventRecorderFor("dataprepper-defaults"), //nolint:staticcheck // TODO: migrate
-	}).SetupWithManager(mgr); err != nil {
+	}).SetupWithManager(mgr, maxConcurrentReconciles); err != nil {
 		setupLog.Error(err, "Failed to create controller", "controller", "DataPrepperDefaults")
 		os.Exit(1)
 	}

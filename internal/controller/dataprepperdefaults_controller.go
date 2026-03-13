@@ -28,6 +28,7 @@ import (
 	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	ctrlcontroller "sigs.k8s.io/controller-runtime/pkg/controller"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	dataprepperv1alpha1 "github.com/kaasops/dataprepper-operator/api/v1alpha1"
@@ -105,8 +106,14 @@ func (r *DataPrepperDefaultsReconciler) Reconcile(ctx context.Context, req ctrl.
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *DataPrepperDefaultsReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *DataPrepperDefaultsReconciler) SetupWithManager(mgr ctrl.Manager, maxConcurrentReconciles int) error {
+	ctrlOpts := ctrlcontroller.Options{}
+	if maxConcurrentReconciles > 0 {
+		ctrlOpts.MaxConcurrentReconciles = maxConcurrentReconciles
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
+		WithOptions(ctrlOpts).
 		For(&dataprepperv1alpha1.DataPrepperDefaults{}).
 		Named("dataprepperdefaults").
 		Complete(r)

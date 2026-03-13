@@ -1,0 +1,29 @@
+## DataPrepperDefaults for load testing: minimal resources per Data Prepper pod.
+## Apply to the test namespace before creating SourceDiscovery resources.
+apiVersion: dataprepper.kaasops.io/v1alpha1
+kind: DataPrepperDefaults
+metadata:
+  name: default
+  namespace: dp-loadtest
+spec:
+  image: opensearchproject/data-prepper:2.10.0
+  sink:
+    opensearch:
+      hosts: ["https://opensearch:9200"]
+      credentialsSecretRef:
+        name: opensearch-credentials
+  kafka:
+    bootstrapServers: ["kafka-0.kafka:9092"]
+    credentialsSecretRef:
+      name: kafka-credentials
+  resources:
+    perReplica:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  scaling:
+    mode: manual
+    maxReplicas: 1

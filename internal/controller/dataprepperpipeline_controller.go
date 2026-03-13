@@ -37,6 +37,7 @@ import (
 	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	ctrlcontroller "sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -718,7 +719,7 @@ func (r *DataPrepperPipelineReconciler) findPipelinesForSecretUnindexed(ctx cont
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *DataPrepperPipelineReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *DataPrepperPipelineReconciler) SetupWithManager(mgr ctrl.Manager, maxConcurrentReconciles int) error {
 	// Register field index for efficient secret→pipeline lookups.
 	if err := mgr.GetFieldIndexer().IndexField(
 		context.Background(),
@@ -732,7 +733,13 @@ func (r *DataPrepperPipelineReconciler) SetupWithManager(mgr ctrl.Manager) error
 		return fmt.Errorf("setup secret ref index: %w", err)
 	}
 
+	ctrlOpts := ctrlcontroller.Options{}
+	if maxConcurrentReconciles > 0 {
+		ctrlOpts.MaxConcurrentReconciles = maxConcurrentReconciles
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
+		WithOptions(ctrlOpts).
 		For(&dataprepperv1alpha1.DataPrepperPipeline{}).
 		Owns(&appsv1.Deployment{}).
 		Owns(&corev1.ConfigMap{}).

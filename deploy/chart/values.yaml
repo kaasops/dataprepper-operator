@@ -17,6 +17,17 @@ manager:
     tag: ""
     pullPolicy: IfNotPresent
 
+  ## Maximum number of concurrent reconciles per controller.
+  ## Increase for large-scale deployments (hundreds of pipelines).
+  ##
+  maxConcurrentReconciles: 1
+
+  ## Kubernetes API client rate limiting.
+  ## Increase for large-scale deployments to avoid API server throttling.
+  ##
+  kubeApiQps: 0
+  kubeApiBurst: 0
+
   ## Arguments
   ##
   args:
@@ -55,11 +66,11 @@ manager:
   ##
   resources:
     limits:
-      cpu: "1"
-      memory: 512Mi
+      cpu: "2"
+      memory: 1Gi
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 200m
+      memory: 256Mi
 
   ## Manager pod's affinity
   ##
